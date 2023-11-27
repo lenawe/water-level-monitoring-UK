@@ -1,0 +1,10 @@
+services:
+  airflow
+  cassandra
+  json-api
+  kafka
+  postgres
+  python-producer
+  spark
+  streamlit
+  tensorflow
