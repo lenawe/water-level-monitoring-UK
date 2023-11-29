@@ -22,7 +22,21 @@ services:
         ipv4_address: 172.18.0.2
         
   kafka-create-topic:
+
   kafka-ui:
+    image: provectuslabs/kafka-ui:v0.6.2
+    ports:
+      - 8888:8888
+    environment:
+      KAFKA_CLUSTERS_0_NAME: monitoring-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: PLAINTEXT://:9092,PLAINTEXT://kafka:9092
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    depends_on:
+      - kafka
+    networks:
+      streaming-pipeline:
+        ipv4_address: 172.18.0.3
+
   # postgres:
   # python-producer:
   # spark:
