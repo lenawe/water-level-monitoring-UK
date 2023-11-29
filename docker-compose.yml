@@ -10,7 +10,18 @@ services:
   # spark:
   # streamlit:
   # tensorflow:
+  
   zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    hostname: zookeeper
+    ports:
+      - '2181:2181'
+    environment:
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      streaming-pipeline:
+        ipv4_address: 172.18.0.1
+
 networks:
   streaming-pipeline:
     driver: bridge
