@@ -2,7 +2,25 @@ services:
   # airflow
   # cassandra
   json-api:
+  
   kafka:
+    image: 'bitnami/kafka:latest'
+    hostname: kafka
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS = PLAINTEXT://:9092
+      - KAFKA_CFG_ADVERTISED_LISTENERS = PLAINTEXT://kafka:9092
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      zookeeper:
+        condition: service_started
+    networks:
+      streaming-pipeline:
+        ipv4_address: 172.18.0.2
+        
   kafka-create-topic:
   kafka-ui:
   # postgres:
