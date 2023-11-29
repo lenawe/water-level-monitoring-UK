@@ -20,9 +20,24 @@ services:
     networks:
       streaming-pipeline:
         ipv4_address: 172.18.0.2
-        
-  kafka-create-topic:
 
+  kafka-create-topic:
+    image: 'bitnami/kafka:latest'
+    command: [ "/bin/bash", "-c", "/kafka-setup.sh"]
+    environment:
+      - TOPIC_NAME=stations
+      - BOOTSTRAP_SERVER=kafka:9092
+    volumes:
+      - type: bind
+        source: ./kafka-topic/kafka-topic-setup.sh
+        target: /kafka-topic-setup.sh
+    depends_on:
+      kafka:
+        condition: service_started
+    networks:
+      streaming-pipeline:
+        ipv4_address: 172.18.0.4
+    
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.6.2
     ports:
