@@ -16,6 +16,18 @@ KAFKA_SETTINGS = {
     "streaming_duration": 120
 }
 
+def load_connections():
+    from airflow.models import Connection
+    from airflow.utils import db
+
+    db.merge_conn(
+        Connection(
+            conn_id="kafka",
+            conn_type="kafka",
+            extra=json.dumps({"socket.timeout.ms": 10, "bootstrap.servers": KAFKA_SETTINGS["bootstrap_servers"]}),
+        )
+    )
+
 def configure_kafka_producer():
     """
     Configures and returns a KafkaProducer instance.
@@ -95,4 +107,9 @@ with DAG(
         python_callable=transform_data,
     )
 
-    get_json_data >> transform_data
+    load_connections = PythonOperator(
+        task_id="load_connections",
+        python_callable=load_connections,
+    )
+
+    get_json_data >> transform_data >> load_connections
