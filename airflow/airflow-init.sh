@@ -55,6 +55,6 @@ if [[ ${warning_resources} == "true" ]]; then
     echo "   https://airflow.apache.org/docs/apache-airflow/stable/howto/docker-compose/index.html#before-you-begin"
     echo
 fi
-mkdir -p /sources/logs /sources/dags /sources/plugins
-chown -R "${AIRFLOW_UID}:0" /sources/{logs,dags,plugins}
+mkdir -p /sources/airflow/logs /sources/airflow/dags /sources/airflow/plugins
+chown -R "${AIRFLOW_UID}:0" /sources/airflow/{logs,dags,plugins}
 exec /entrypoint airflow version
