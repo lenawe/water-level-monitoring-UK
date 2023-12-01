@@ -4,7 +4,9 @@ import time
 import datetime
 import pendulum
 import json
+
 from airflow import DAG
+from airflow.operators.python import PythonOperator
 
 API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=50"
 KAFKA_SETTINGS = {
@@ -24,18 +26,12 @@ def configure_kafka_producer():
     producer = KafkaProducer(bootstrap_servers=KAFKA_SETTINGS["bootstrap_servers"])
     return producer
 
-def get_json_data(api_endpoint: str) -> str:
+def get_json_data(ti):
     """
     Retrieves json data from the specified API endpoint.
-
-    Args:
-        api_endpoint (str): The URL of the API endpoint.
-
-    Returns:
-        dict: The JSON response containing the retrieved data.
     """
-    response = requests.get(api_endpoint)
-    return response.json()
+    response = requests.get(API_ENDPOINT_STATIONS)
+    ti.xcom_push(key="stations", value=response.json())
 
 def transform_station_data(data):
     """
@@ -85,13 +81,18 @@ if __name__ == "__main__":
     stream_data_to_kafka()
 
 with DAG(
+
     dag_id="get-stations",
     schedule_interval="*/15 * * * *",
     start_date=pendulum.datetime(2023, 12, 01, tz="UTC"),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
+    
 ) as dag:
     
-    function = ()
+    get_json_data = PythonOperator(
+        task_id="get_json_data",
+        python_callable=get_json_data,
+    )
 
-    function
+    get_json_data
