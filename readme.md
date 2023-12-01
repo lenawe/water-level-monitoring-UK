@@ -21,6 +21,7 @@ To run this project, you need to have Docker installed on your machine. If you d
 2. Run the project in detached mode:
 
    ```shell
+   docker compose up airflow-init
    docker compose up -d
    ```
 
