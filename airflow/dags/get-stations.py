@@ -1,7 +1,10 @@
 import requests
 from kafka import KafkaProducer
 import time
+import datetime
+import pendulum
 import json
+from airflow import DAG
 
 API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=50"
 KAFKA_SETTINGS = {
@@ -80,3 +83,15 @@ def stream_data_to_kafka():
 
 if __name__ == "__main__":
     stream_data_to_kafka()
+
+with DAG(
+    dag_id="get-stations",
+    schedule_interval="*/15 * * * *",
+    start_date=pendulum.datetime(2023, 12, 01, tz="UTC"),
+    catchup=False,
+    dagrun_timeout=datetime.timedelta(minutes=60),
+) as dag:
+    
+    function = ()
+
+    function
