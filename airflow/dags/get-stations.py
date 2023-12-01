@@ -1,5 +1,4 @@
 import requests
-from kafka import KafkaProducer
 import time
 import datetime
 import pendulum
@@ -27,16 +26,6 @@ def load_connections():
             extra=json.dumps({"socket.timeout.ms": 10, "bootstrap.servers": KAFKA_SETTINGS["bootstrap_servers"]}),
         )
     )
-
-def configure_kafka_producer():
-    """
-    Configures and returns a KafkaProducer instance.
-
-    Returns:
-        KafkaProducer: The configured KafkaProducer instance.
-    """
-    producer = KafkaProducer(bootstrap_servers=KAFKA_SETTINGS["bootstrap_servers"])
-    return producer
 
 def get_json_data(ti):
     """
