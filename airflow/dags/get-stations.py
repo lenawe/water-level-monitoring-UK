@@ -62,20 +62,6 @@ def publish_to_kafka(producer, data):
     producer.send(KAFKA_SETTINGS["topic"], value=data)
     producer.flush()
 
-def stream_data_to_kafka():
-    """
-    Streams data to Kafka.
-    """
-    producer = configure_kafka_producer()
-    for _ in range (KAFKA_SETTINGS["streaming_duration"] // KAFKA_SETTINGS["pause_interval"]):
-        station_data = get_json_data(API_ENDPOINT_STATIONS)
-        station_data_transformed = transform_station_data(station_data)
-        publish_to_kafka(producer, station_data_transformed)
-        time.sleep(KAFKA_SETTINGS["pause_interval"])
-
-if __name__ == "__main__":
-    stream_data_to_kafka()
-
 with DAG(
 
     dag_id="get-stations",
