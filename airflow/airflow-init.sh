@@ -58,3 +58,5 @@ fi
 mkdir -p /sources/airflow/logs /sources/airflow/dags /sources/airflow/plugins
 chown -R "${AIRFLOW_UID}:0" /sources/airflow/{logs,dags,plugins}
 exec /entrypoint airflow version
+
+RUN pip install --no-cache-dir apache-airflow-providers-apache-kafka
