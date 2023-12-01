@@ -33,17 +33,12 @@ def get_json_data(ti):
     response = requests.get(API_ENDPOINT_STATIONS)
     ti.xcom_push(key="stations", value=response.json())
 
-def transform_station_data(data):
+def transform_data(ti):
     """
     Transforms the station data into a desired format.
-
-    Args:
-        data (dict): The JSON response containing the station data.
-
-    Returns:
-        list: The transformed station data in a list of dictionaries.
     """
     transformed_data = []
+    data = ti.xcom_pull(key="stations", task_ids="get_json_data")
     for item in data['items']:
         transformed_item = {
             "town": item.get("town", None), 
@@ -52,7 +47,7 @@ def transform_station_data(data):
             "status": item.get("status", None), 
         }
         transformed_data.append(transformed_item)
-    return transformed_data
+    ti.xcom_push(key="transformed_stations", value=transformed_data)
 
 def publish_to_kafka(producer, data):
     """
@@ -87,7 +82,7 @@ with DAG(
     start_date=pendulum.datetime(2023, 12, 01, tz="UTC"),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
-    
+
 ) as dag:
     
     get_json_data = PythonOperator(
@@ -95,4 +90,9 @@ with DAG(
         python_callable=get_json_data,
     )
 
-    get_json_data
+    transform_data = PythonOperator(
+        task_id="transform_data",
+        python_callable=transform_data,
+    )
+
+    get_json_data >> transform_data
