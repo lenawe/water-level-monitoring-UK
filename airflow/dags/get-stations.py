@@ -91,7 +91,7 @@ with DAG(
 
     dag_id="get-stations",
     schedule_interval="*/15 * * * *",
-    start_date=pendulum.datetime(2023, 12, 01, tz="UTC"),
+    start_date=pendulum.datetime(2023, 12, 1, tz="UTC"),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
 
