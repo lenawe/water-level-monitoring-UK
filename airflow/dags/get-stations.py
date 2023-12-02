@@ -44,7 +44,7 @@ def load_connections():
 
     db.merge_conn(
         Connection(
-            conn_id="kafka-produce",
+            conn_id="kafka-produce-stations",
             conn_type="kafka",
             extra=json.dumps(
                 {   
@@ -114,7 +114,7 @@ with DAG(
     )
 
     produce_to_topic = ProduceToTopicOperator(
-        kafka_config_id="kafka-produce",
+        kafka_config_id="kafka-produce-stations",
         task_id="produce_to_topic",
         topic="stations",
         producer_function=transform_data,
