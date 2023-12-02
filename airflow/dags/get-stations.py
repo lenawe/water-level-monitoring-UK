@@ -24,7 +24,14 @@ def load_connections():
         Connection(
             conn_id="kafka-produce",
             conn_type="kafka",
-            extra=json.dumps({"socket.timeout.ms": 10, "bootstrap.servers": KAFKA_SETTINGS["bootstrap_servers"]}),
+            extra=json.dumps(
+                {   
+                    "group.id": "stations-group",
+                    "bootstrap.servers": "kafka:9092",
+                    "security.protocol": "PLAINTEXT",
+                    "auto.offset.reset": "beginning"
+                }
+            ),
         )
     )
 
