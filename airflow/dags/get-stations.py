@@ -70,9 +70,18 @@ def transform_data(data):
     """
     data = json.loads(data.replace("\'", "\""))
     for item in data['items']:
+
+        stageScale = item.get("stageScale", None)
+        stageScaleResponse = requests.get(stageScale)
+        stageScaleResponse = stageScaleResponse.json()
+
+        typicalRangeHigh = stageScaleResponse["items"].get("typicalRangeHigh", None)
+        typicalRangeLow = stageScaleResponse["items"].get("typicalRangeLow", None)
+
         measure_id = '' # due to filtering, only one measure is possible
         for measure in item["measures"]:
             measure_id = measure.get("@id", None)
+
         yield (
             json.dumps(item),
             json.dumps(
@@ -82,7 +91,8 @@ def transform_data(data):
                     "measures_id": measure_id,
                     "notation": item.get("notation", None),
                     "riverName": item.get("riverName", None),
-                    "stageScale": item.get("stageScale", None),
+                    "typicalRangeHigh": typicalRangeHigh,
+                    "typicalRangeLow": typicalRangeLow,
                     "town": item.get("town", None),
                     "lat": item.get("lat", None),
                     "long": item.get("long", None),
