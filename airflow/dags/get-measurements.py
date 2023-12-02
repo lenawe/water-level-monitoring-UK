@@ -9,28 +9,22 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
 """
-API for station data
+API for measurements data
 
 Filter:
 - parameter = level
 - qualifier = Stage
-- status = Active
-- riverName = River Wye (TODO: remove for production)
+- stationReference = notions of measurements next to river Wye (TODO: remove for production)
 
 Returned data:
-- RLOIid
-- label
-- measures (for mapping to measurements)
-- notation
-- riverName
-- stageScale
-    - typicalRangeHigh
-    - typicalRangeLow
-- town
-- lat
-- long
+- @id (for mapping to stations)
+- stationReference
+- latestReading
+    - dateTime
+    - value
+- unit
 """
-API_ENDPOINT_MEASUREMENTS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
+API_ENDPOINT_MEASUREMENTS = """https://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&stationReference=055817_TG_323&stationReference=4023&stationReference=055002_TG_301&stationReference=055807_TG_320&stationReference=2550TH&stationReference=4197&stationReference=2320&stationReference=055811_TG_9303&stationReference=055816_TG_319&stationReference=2590TH&stationReference=4683"""
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "measurements",
@@ -66,26 +60,19 @@ def get_json_data(ti):
 
 def transform_data(data):
     """
-    Transforms the station data into a desired format.
+    Transforms the measurements data into a desired format.
     """
     data = json.loads(data.replace("\'", "\""))
-    for item in data['items']:
-        measure_id = '' # due to filtering, only one measure is possible
-        for measure in item["measures"]:
-            measure_id = measure.get("@id", None)
+    for item in data["items"]:
         yield (
             json.dumps(item),
             json.dumps(
                 {
-                    "RLOIid": item.get("RLOIid", None),
-                    "label": item.get("label", None),
-                    "measures_id": measure_id,
-                    "notation": item.get("notation", None),
-                    "riverName": item.get("riverName", None),
-                    "stageScale": item.get("stageScale", None),
-                    "town": item.get("town", None),
-                    "lat": item.get("lat", None),
-                    "long": item.get("long", None),
+                    "id": item.get("@id", None),
+                    "stationReference": item.get("stationReference", None),
+                    "datetime": item["latestReading"].get("datetime", None),
+                    "value": item["latestReading"].get("value", None),
+                    "unit": item.get("unit", None),
                 }
             )
         )
