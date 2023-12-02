@@ -53,18 +53,6 @@ def transform_data(data):
             )
         )
 
-def publish_to_kafka(producer, data):
-    """
-    Publishes the transformed data to Kafka.
-
-    Args:
-        producer (KafkaProducer): The KafkaProducer instance.
-        data (list): The transformed station data.
-    """
-    data = json.dumps(data).encode('utf-8')
-    producer.send(KAFKA_SETTINGS["topic"], value=data)
-    producer.flush()
-
 def produce_to_topic(ti):
     return ti.xcom_pull(key="transformed_stations", task_ids="transform_data")
 
