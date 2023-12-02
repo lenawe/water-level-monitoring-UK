@@ -30,10 +30,10 @@ Returned data:
 - lat
 - long
 """
-API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
+API_ENDPOINT_MEASUREMENTS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
-    "topic": "stations",
+    "topic": "measurements",
     "pause_interval": 10,
     "streaming_duration": 120
 }
@@ -44,11 +44,11 @@ def load_connections():
 
     db.merge_conn(
         Connection(
-            conn_id="kafka-produce",
+            conn_id="kafka-produce-measurements",
             conn_type="kafka",
             extra=json.dumps(
                 {   
-                    "group.id": "stations-group",
+                    "group.id": "measurements-group",
                     "bootstrap.servers": "kafka:9092",
                     "security.protocol": "PLAINTEXT",
                     "auto.offset.reset": "beginning"
@@ -61,8 +61,8 @@ def get_json_data(ti):
     """
     Retrieves json data from the specified API endpoint.
     """
-    response = requests.get(API_ENDPOINT_STATIONS)
-    ti.xcom_push(key="stations", value=response.json())
+    response = requests.get(API_ENDPOINT_MEASUREMENTS)
+    ti.xcom_push(key="measurements", value=response.json())
 
 def transform_data(data):
     """
@@ -91,11 +91,11 @@ def transform_data(data):
         )
 
 def produce_to_topic(ti):
-    return ti.xcom_pull(key="transformed_stations", task_ids="transform_data")
+    return ti.xcom_pull(key="transformed_measurements", task_ids="transform_data")
 
 with DAG(
 
-    dag_id="get-stations",
+    dag_id="get-measurements",
     schedule_interval="*/15 * * * *",
     start_date=pendulum.datetime(2023, 12, 1, tz="UTC"),
     catchup=False,
@@ -114,11 +114,11 @@ with DAG(
     )
 
     produce_to_topic = ProduceToTopicOperator(
-        kafka_config_id="kafka-produce",
+        kafka_config_id="kafka-produce-measurements",
         task_id="produce_to_topic",
-        topic="stations",
+        topic="measurements",
         producer_function=transform_data,
-        producer_function_args=["{{ ti.xcom_pull(key='stations', task_ids='get_json_data')}}"]
+        producer_function_args=["{{ ti.xcom_pull(key='measurements', task_ids='get_json_data')}}"]
     )
 
     get_json_data >> load_connections >> produce_to_topic
