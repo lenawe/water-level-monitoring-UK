@@ -32,17 +32,6 @@ x-airflow-common:
 services:
   # cassandra
 
-  json-api:
-    build: ./json-api
-    ports:
-      - '8081:8081'
-    depends_on:
-      kafka:
-        condition: service_completed_successfully
-    networks:
-      streaming-pipeline:
-        ipv4_address: 172.18.0.6
-  
   kafka:
     image: 'bitnami/kafka:latest'
     hostname: kafka
