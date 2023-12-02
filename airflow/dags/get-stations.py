@@ -18,7 +18,7 @@ Filter:
 - riverName = River Wye (TODO: remove for production)
 
 Returned data:
-- RLOid
+- RLOIid
 - label
 - measures (for mapping to measurements)
 - notation
@@ -70,14 +70,22 @@ def transform_data(data):
     """
     data = json.loads(data.replace("\'", "\""))
     for item in data['items']:
+        measure_id = '' # due to filtering, only one measure is possible
+        for measure in item["measures"]:
+            measure_id = measure.get("@id", None)
         yield (
             json.dumps(item),
             json.dumps(
                 {
-                    "town": item.get("town", None), 
-                    "riverName": item.get("riverName", None), 
-                    "stationReference": item.get("stationReference", None), 
-                    "status": item.get("status", None), 
+                    "RLOIid": item.get("RLOIid", None),
+                    "label": item.get("label", None),
+                    "measures_id": measure_id,
+                    "notation": item.get("notation", None),
+                    "riverName": item.get("riverName", None),
+                    "stageScale": item.get("stageScale", None),
+                    "town": item.get("town", None),
+                    "lat": item.get("lat", None),
+                    "long": item.get("long", None),
                 }
             )
         )
