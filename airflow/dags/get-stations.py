@@ -8,7 +8,29 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
-API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=50"
+"""
+API for station data
+
+Filter:
+- parameter = level
+- qualifier = Stage
+- status = Active
+- riverName = River Wye (TODO: remove for production)
+
+Returned data:
+- RLOid
+- label
+- measures (for mapping to measurements)
+- notation
+- riverName
+- stageScale
+    - typicalRangeHigh
+    - typicalRangeLow
+- town
+- lat
+- long
+"""
+API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "stations",
