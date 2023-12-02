@@ -6,6 +6,7 @@ import json
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
 API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=50"
 KAFKA_SETTINGS = {
@@ -21,7 +22,7 @@ def load_connections():
 
     db.merge_conn(
         Connection(
-            conn_id="kafka",
+            conn_id="kafka-produce",
             conn_type="kafka",
             extra=json.dumps({"socket.timeout.ms": 10, "bootstrap.servers": KAFKA_SETTINGS["bootstrap_servers"]}),
         )
@@ -34,21 +35,23 @@ def get_json_data(ti):
     response = requests.get(API_ENDPOINT_STATIONS)
     ti.xcom_push(key="stations", value=response.json())
 
-def transform_data(ti):
+def transform_data(data):
     """
     Transforms the station data into a desired format.
     """
-    transformed_data = []
-    data = ti.xcom_pull(key="stations", task_ids="get_json_data")
+    data = json.loads(data.replace("\'", "\""))
     for item in data['items']:
-        transformed_item = {
-            "town": item.get("town", None), 
-            "riverName": item.get("riverName", None), 
-            "stationReference": item.get("stationReference", None), 
-            "status": item.get("status", None), 
-        }
-        transformed_data.append(transformed_item)
-    ti.xcom_push(key="transformed_stations", value=transformed_data)
+        yield (
+            json.dumps(item),
+            json.dumps(
+                {
+                    "town": item.get("town", None), 
+                    "riverName": item.get("riverName", None), 
+                    "stationReference": item.get("stationReference", None), 
+                    "status": item.get("status", None), 
+                }
+            )
+        )
 
 def publish_to_kafka(producer, data):
     """
@@ -61,6 +64,9 @@ def publish_to_kafka(producer, data):
     data = json.dumps(data).encode('utf-8')
     producer.send(KAFKA_SETTINGS["topic"], value=data)
     producer.flush()
+
+def produce_to_topic(ti):
+    return ti.xcom_pull(key="transformed_stations", task_ids="transform_data")
 
 with DAG(
 
@@ -77,14 +83,17 @@ with DAG(
         python_callable=get_json_data,
     )
 
-    transform_data = PythonOperator(
-        task_id="transform_data",
-        python_callable=transform_data,
-    )
-
     load_connections = PythonOperator(
         task_id="load_connections",
         python_callable=load_connections,
     )
 
-    get_json_data >> transform_data >> load_connections
+    produce_to_topic = ProduceToTopicOperator(
+        kafka_config_id="kafka-produce",
+        task_id="produce_to_topic",
+        topic="stations",
+        producer_function=transform_data,
+        producer_function_args=["{{ ti.xcom_pull(key='stations', task_ids='get_json_data')}}"]
+    )
+
+    get_json_data >> load_connections >> produce_to_topic
