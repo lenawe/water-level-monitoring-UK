@@ -8,7 +8,29 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 
-API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?_limit=50"
+"""
+API for station data
+
+Filter:
+- parameter = level
+- qualifier = Stage
+- status = Active
+- riverName = River Wye (TODO: remove for production)
+
+Returned data:
+- RLOIid
+- label
+- measures (for mapping to measurements)
+- notation
+- riverName
+- stageScale
+    - typicalRangeHigh
+    - typicalRangeLow
+- town
+- lat
+- long
+"""
+API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "stations",
@@ -22,7 +44,7 @@ def load_connections():
 
     db.merge_conn(
         Connection(
-            conn_id="kafka-produce",
+            conn_id="kafka-produce-stations",
             conn_type="kafka",
             extra=json.dumps(
                 {   
@@ -48,14 +70,32 @@ def transform_data(data):
     """
     data = json.loads(data.replace("\'", "\""))
     for item in data['items']:
+
+        stageScale = item.get("stageScale", None)
+        stageScaleResponse = requests.get(stageScale)
+        stageScaleResponse = stageScaleResponse.json()
+
+        typicalRangeHigh = stageScaleResponse["items"].get("typicalRangeHigh", None)
+        typicalRangeLow = stageScaleResponse["items"].get("typicalRangeLow", None)
+
+        measure_id = '' # due to filtering, only one measure is possible
+        for measure in item["measures"]:
+            measure_id = measure.get("@id", None)
+
         yield (
             json.dumps(item),
             json.dumps(
                 {
-                    "town": item.get("town", None), 
-                    "riverName": item.get("riverName", None), 
-                    "stationReference": item.get("stationReference", None), 
-                    "status": item.get("status", None), 
+                    "RLOIid": item.get("RLOIid", None),
+                    "label": item.get("label", None),
+                    "measures_id": measure_id,
+                    "notation": item.get("notation", None),
+                    "riverName": item.get("riverName", None),
+                    "typicalRangeHigh": typicalRangeHigh,
+                    "typicalRangeLow": typicalRangeLow,
+                    "town": item.get("town", None),
+                    "lat": item.get("lat", None),
+                    "long": item.get("long", None),
                 }
             )
         )
@@ -66,7 +106,7 @@ def produce_to_topic(ti):
 with DAG(
 
     dag_id="get-stations",
-    schedule_interval="*/15 * * * *",
+    schedule_interval="0 3 * * 1", # At 03:00 on Monday.
     start_date=pendulum.datetime(2023, 12, 1, tz="UTC"),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
@@ -84,7 +124,7 @@ with DAG(
     )
 
     produce_to_topic = ProduceToTopicOperator(
-        kafka_config_id="kafka-produce",
+        kafka_config_id="kafka-produce-stations",
         task_id="produce_to_topic",
         topic="stations",
         producer_function=transform_data,

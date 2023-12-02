@@ -53,11 +53,25 @@ services:
     volumes:
       - "kafka_data:/bitnami"
 
-  kafka-create-topic:
+  kafka-create-topic-stations:
     image: 'bitnami/kafka:latest'
     command: [ "/bin/bash", "-c", "/kafka-topic-setup.sh"]
     environment:
       - TOPIC_NAME=stations
+      - BOOTSTRAP_SERVER=kafka:9092
+    volumes:
+      - type: bind
+        source: ./kafka-topic/kafka-topic-setup.sh
+        target: /kafka-topic-setup.sh
+    depends_on:
+      kafka:
+        condition: service_started
+
+  kafka-create-topic-measurements:
+    image: 'bitnami/kafka:latest'
+    command: [ "/bin/bash", "-c", "/kafka-topic-setup.sh"]
+    environment:
+      - TOPIC_NAME=measurements
       - BOOTSTRAP_SERVER=kafka:9092
     volumes:
       - type: bind
