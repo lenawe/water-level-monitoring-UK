@@ -52,9 +52,6 @@ services:
       - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
     volumes:
       - "kafka_data:/bitnami"
-    networks:
-      streaming-pipeline:
-        ipv4_address: 172.18.0.3
 
   kafka-create-topic:
     image: 'bitnami/kafka:latest'
@@ -69,9 +66,6 @@ services:
     depends_on:
       kafka:
         condition: service_started
-    networks:
-      streaming-pipeline:
-        ipv4_address: 172.18.0.5
     
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.6.2
@@ -83,9 +77,6 @@ services:
       DYNAMIC_CONFIG_ENABLED: 'true'
     depends_on:
       - kafka
-    networks:
-      streaming-pipeline:
-        ipv4_address: 172.18.0.4
 
   # postgres:
   # python-producer:
@@ -247,14 +238,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
-networks:
-  streaming-pipeline:
-    driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: "172.18.0.0/16"
 
 volumes:
   kafka_data:
