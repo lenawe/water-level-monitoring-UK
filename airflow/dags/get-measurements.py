@@ -83,7 +83,7 @@ def produce_to_topic(ti):
 with DAG(
 
     dag_id="get-measurements",
-    schedule_interval="*/15 * * * *",
+    schedule_interval="*/15 * * * *", # At every 15th minute.
     start_date=pendulum.datetime(2023, 12, 1, tz="UTC"),
     catchup=False,
     dagrun_timeout=datetime.timedelta(minutes=60),
