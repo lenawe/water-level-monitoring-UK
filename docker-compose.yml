@@ -92,7 +92,35 @@ services:
     depends_on:
       - kafka
 
-  # postgres:
+  postgresql:
+    build: ./postgresql
+    hostname: postgresql
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: WATER_LEVEL_MONITORING_DB
+    volumes:
+      - "./docker/postgresql/postgresql_data:/var/lib/postgresql/data:rw"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d WATER_LEVEL_MONITORING_DB -h postgresql -p 5432"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin
+    volumes:
+      - "./docker/pgadmin/pgadmin_data:/var/lib/pgadmin:rw"
+      - "./docker/pgadmin/pgadmin_data:/pgadmin4/servers.json"
+    ports:
+      - 8082:80
+
   # python-producer:
   # spark:
   # streamlit:
@@ -257,3 +285,4 @@ volumes:
   kafka_data:
     driver: local
   postgres-db-volume:
+  postgresql-db-volume:

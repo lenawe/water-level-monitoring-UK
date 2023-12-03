@@ -1,2 +1,5 @@
 airflow/logs/
 airflow/dags/__pycache__/
+docker/pgadmin/pgadmin_data/sessions/
+docker/postgresql/postgresql_data/
+docker/pgadmin/pgadmin_data/pgadmin4.db
