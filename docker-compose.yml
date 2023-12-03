@@ -31,7 +31,12 @@ x-airflow-common:
       condition: service_healthy
 
 services:
-  # cassandra
+  cassandra-db:
+    image: cassandra:4
+    container_name: cassandra
+    hostname: cassandra
+    ports:
+      - '9042:9042'
   
   kafka:
     image: bitnami/kafka:latest
