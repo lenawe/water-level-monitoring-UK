@@ -151,9 +151,8 @@ services:
     ports:
       - '8083:8083'
 
-  spark-consumer:
+  spark-consumer-cassandra:
     image: docker.io/bitnami/spark:3.3.0
-    container_name: spark-consumer
     command: [ "/bin/bash", "-c", "/spark-setup.sh"]
     depends_on:
       spark-master:
@@ -164,6 +163,11 @@ services:
         condition: service_completed_successfully
       cassandra-init:
         condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ./spark-consumer-cassandra/spark-setup.sh
+        target: /spark-setup.sh
+      - ./spark-consumer-cassandra/scripts:/home/scripts
       postgresql:
         condition: service_started
     volumes:
