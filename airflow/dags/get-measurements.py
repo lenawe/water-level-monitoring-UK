@@ -14,7 +14,6 @@ API for measurements data
 Filter:
 - parameter = level
 - qualifier = Stage
-- stationReference = notions of measurements next to river Wye (TODO: remove for production)
 
 Returned data:
 - @id (for mapping to stations)
@@ -24,7 +23,7 @@ Returned data:
     - value
 - unit
 """
-API_ENDPOINT_MEASUREMENTS = """https://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&stationReference=055817_TG_323&stationReference=4023&stationReference=055002_TG_301&stationReference=055807_TG_320&stationReference=2550TH&stationReference=4197&stationReference=2320&stationReference=055811_TG_9303&stationReference=055816_TG_319&stationReference=2590TH&stationReference=4683"""
+API_ENDPOINT_MEASUREMENTS = """https://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage"""
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "measurements",

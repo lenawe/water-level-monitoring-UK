@@ -15,7 +15,6 @@ Filter:
 - parameter = level
 - qualifier = Stage
 - status = Active
-- riverName = River Wye (TODO: remove for production)
 
 Returned data:
 - RLOIid
@@ -30,7 +29,7 @@ Returned data:
 - lat
 - long
 """
-API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active&riverName=River%20Wye"
+API_ENDPOINT_STATIONS = "https://environment.data.gov.uk/flood-monitoring/id/stations?parameter=level&qualifier=Stage&status=Active"
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "stations",
