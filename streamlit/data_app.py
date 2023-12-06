@@ -69,4 +69,6 @@ r = pdk.Deck(
     tooltip=tooltip
 )
 
+st.title('Water level monitoring in the UK')
+
 st.pydeck_chart(r)
