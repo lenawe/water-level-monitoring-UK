@@ -11,7 +11,7 @@ This project aims for the development of a backend that serves a water level mon
 
 ## Overview
 The following image provides an overview of the architecture that is set-up:</br>
-<img src="/architecture.png" alt="Expand options" width="700"/></br>
+<img src="/images/architecture.png" alt="Expand options" width="700"/></br>
 It is important that the focus of this project is on the architecture itself, not on the data modelling. For this reason, the data will be retrieved, pre-processed and stored in both a relational and non-relational database. However, Tensorflow is currently seen as placeholder for possible future developements based on the data. Therefore, the data is only visualized as it is stored in the PostgreSQL database.
 
 ## Installation
