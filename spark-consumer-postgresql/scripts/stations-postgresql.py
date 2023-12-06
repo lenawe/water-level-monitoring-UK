@@ -57,12 +57,17 @@ def save_to_postgres(writeDF, epoch_id, topic):
     "password": "postgres",
     "driver" : "org.postgresql.Driver"
   }  
-  
+
+  mode = "append"
+  if topic == "stations":
+    mode = "overwrite"
+
   writeDF.write \
+    .option("truncate", True) \
     .jdbc(
       url="jdbc:postgresql://postgresql:5432/WATER_LEVEL_MONITORING_DB",
       table="WATER_LEVEL_MONITORING_UK.{topic}".format(topic=topic),
-      mode="append",
+      mode=mode,
       properties=db_credentials
     )
   
