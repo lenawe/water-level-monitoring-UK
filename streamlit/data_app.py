@@ -20,6 +20,7 @@ df['unit'] = df['unit'].replace('http://qudt.org/1.1/vocab/unit#Meter', 'm')
 # Round numerical values
 df['typical_range_high'] = df['typical_range_high'].round(2)
 df['typical_range_low'] = df['typical_range_low'].round(2)
+df['value'] = df['value'].round(2)
 
 # Define colors in case of out-of-range values
 df['color'] = np.where(
