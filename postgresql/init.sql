@@ -43,6 +43,7 @@ CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_STATIONS AS
             GROUP BY "RLOIID"
         ) AS latest ON s."RLOIID" = latest."RLOIID" AND s."LAST_UPDATE" = latest.MaxLastUpdate;
 
+CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.stationsmeasurements AS
  SELECT s."RLOIID" AS station_id,
     s."NOTATION" AS station_notation,
     s."LABEL" AS station_name,
@@ -51,9 +52,9 @@ CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_STATIONS AS
     s."LAT" AS latitude,
     s."LONG" AS longitude,
     m."DATETIME" AS last_update,
-    m."VALUE",
-    m."UNIT",
+        m."VALUE" AS value,
+        m."UNIT" AS unit,
     s."TYPICALRANGELOW" AS typical_range_low,
     s."TYPICALRANGEHIGH" AS typical_range_high
-   FROM water_level_monitoring_uk.stations s
-     JOIN water_level_monitoring_uk.MEASUREMENTS m ON s."MEASURES_ID" = m."ID";
+    FROM WATER_LEVEL_MONITORING_UK.LATEST_STATIONS s
+    JOIN WATER_LEVEL_MONITORING_UK.LATEST_MEASUREMENTS m ON s."MEASURES_ID" = m."ID";
