@@ -1,5 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField,FloatType,StringType
+from pyspark.sql.functions import from_json, col, udf
+import uuid
+
 spark = SparkSession \
     .builder \
     .appName("Streaming pipeline to cassandra") \
@@ -46,3 +49,11 @@ def get_schema(topic):
       ])
     else:
         return None
+
+def get_expanded_cassandra_df(topic):
+  expanded_df = get_input_df(topic) \
+    .selectExpr("CAST(value AS STRING)") \
+    .select(from_json(col("value"),get_schema(topic)).alias(topic)) \
+    .select("{topic}.*".format(topic=topic))
+  uuid_udf = udf(lambda: str(uuid.uuid4()), StringType()).asNondeterministic()
+  return expanded_df.withColumn("uuid", uuid_udf())
