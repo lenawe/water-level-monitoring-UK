@@ -10,3 +10,6 @@ df = conn.query('SELECT * FROM water_level_monitoring_uk.stationsmeasurements;',
 df['last_update'] = pd.to_datetime(df['last_update'])
 df['last_update'] = df['last_update'].dt.tz_convert('Europe/Vienna')
 df['last_update'] = df['last_update'].dt.strftime('%Y-%m-%d %H:%M')
+
+# Adjust unit
+df['unit'] = df['unit'].replace('http://qudt.org/1.1/vocab/unit#Meter', 'm')
