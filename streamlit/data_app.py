@@ -1,6 +1,8 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import pydeck as pdk
+
 # Set-up connection
 conn = st.connection("postgresql", type="sql")
 
@@ -29,3 +31,28 @@ def hex_to_rgb(hex_color):
     return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 df['color'] = df['color'].apply(hex_to_rgb)
+
+layer = pdk.Layer(
+    'ScatterplotLayer',
+    df,
+    get_position='[longitude, latitude]',
+    get_color='color',
+    get_radius='1000', 
+    pickable=True
+)
+
+# Set initial view around UK
+view_state = pdk.ViewState(
+    latitude=52.993215,
+    longitude=-1.760149,
+    zoom=10,
+    pitch=0
+)
+
+r = pdk.Deck(
+    map_style="mapbox://styles/mapbox/light-v9",
+    layers=[layer],
+    initial_view_state=view_state
+)
+
+st.pydeck_chart(r)
