@@ -224,24 +224,24 @@ services:
       start_period: 30s
     restart: always
 
-  airflow-webserver:
-    <<: *airflow-common
-    command: webserver
-    ports:
-      - 8081:8081
-    healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8081/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 30s
-    restart: always
-    depends_on:
-      <<: *airflow-common-depends-on
-      airflow-init:
-        condition: service_completed_successfully
-      kafka:
-        condition: service_started
+  # airflow-webserver:
+  #   <<: *airflow-common
+  #   command: webserver
+  #   ports:
+  #     - 8081:8081
+  #   healthcheck:
+  #     test: ["CMD", "curl", "--fail", "http://localhost:8081/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 30s
+  #   restart: always
+  #   depends_on:
+  #     <<: *airflow-common-depends-on
+  #     airflow-init:
+  #       condition: service_completed_successfully
+  #     kafka:
+  #       condition: service_started
 
   airflow-scheduler:
     <<: *airflow-common
