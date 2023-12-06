@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType,StructField,FloatType,StringType
+from pyspark.sql.types import StructType,StructField,FloatType,StringType,DateType 
 from pyspark.sql.functions import from_json, col
 
 spark = SparkSession \
@@ -38,7 +38,7 @@ def get_schema(topic):
       return StructType([
         StructField("id", StringType()),
         StructField("stationreference", StringType()),
-        StructField("datetime", StringType()),
+        StructField("datetime", DateType()),
         StructField("value", FloatType()),
         StructField("unit", StringType()),
       ])
@@ -58,16 +58,12 @@ def save_to_postgres(writeDF, epoch_id, topic):
     "driver" : "org.postgresql.Driver"
   }  
 
-  mode = "append"
-  if topic == "stations":
-    mode = "overwrite"
-
   writeDF.write \
     .option("truncate", True) \
     .jdbc(
       url="jdbc:postgresql://postgresql:5432/WATER_LEVEL_MONITORING_DB",
       table="WATER_LEVEL_MONITORING_UK.{topic}".format(topic=topic),
-      mode=mode,
+      mode="overwrite",
       properties=db_credentials
     )
   
