@@ -11,7 +11,7 @@ This project aims for the development of a backend that serves a water level mon
 
 ## Overview
 The following image provides an overview of the architecture that is set-up:</br>
-<img src="/architecture.png" alt="Expand options" width="700"/></br>
+<img src="/images/architecture.png" alt="Expand options" width="700"/></br>
 It is important that the focus of this project is on the architecture itself, not on the data modelling. For this reason, the data will be retrieved, pre-processed and stored in both a relational and non-relational database. However, Tensorflow is currently seen as placeholder for possible future developements based on the data. Therefore, the data is only visualized as it is stored in the PostgreSQL database.
 
 ## Installation
@@ -33,7 +33,9 @@ To run this project, you need to have Docker installed on your machine. If you d
    docker compose up -d
    ```
 
-3. In Docker Desktop, you can monitor the status of the container. Once the necessary containers are running, you can access the front-end app at [http://localhost:8501](http://localhost:8501). The provision of the data is scheduled. Please be aware that information about the stations will load once a week, and information about the measurements every 15 minutes. If there is a requirement to change this or run the pipelines manually, this can be done in Airflow.
+3. In Docker Desktop, you can monitor the status of the container. Once the necessary containers are running, you can access the front-end app at [http://localhost:8501](http://localhost:8501). </br>
+<img src="/images/app-1.png" alt="Expand options" height="350"/><img src="/images/app-2.png" alt="Expand options" height="350"/></br>
+The provision of the data is scheduled. Please be aware that information about the stations will load once a week, and information about the measurements every 15 minutes. If there is a requirement to change this or run the pipelines manually, this can be done in Airflow.
 
 ## Monitoring
 As part of this project, the Docker containers were operated locally. To save local resources, the graphical user intefaces are therefore deactivated as default. If these are required, the corresponding parts in [docker-compose.yml](https://github.com/lenawe/water-level-monitoring-UK/blob/main/docker-compose.yml) can be activated by commenting them out and running them. If done, they can be accessed at the following adresses:
