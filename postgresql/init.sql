@@ -1,7 +1,8 @@
 CREATE SCHEMA IF NOT EXISTS WATER_LEVEL_MONITORING_UK;
 
 CREATE TABLE IF NOT EXISTS WATER_LEVEL_MONITORING_UK.STATIONS (
-    "RLOIID" VARCHAR(255) PRIMARY KEY,
+    "PK_ID" SERIAL PRIMARY KEY,
+    "RLOIID" VARCHAR(255),
     "LABEL" VARCHAR(255),
     "MEASURES_ID" VARCHAR(255),
     "NOTATION" VARCHAR(255),
@@ -10,30 +11,66 @@ CREATE TABLE IF NOT EXISTS WATER_LEVEL_MONITORING_UK.STATIONS (
     "TYPICALRANGELOW" FLOAT,
     "TOWN" VARCHAR(255),
     "LAT" FLOAT,
-    "LONG" FLOAT
+    "LONG" FLOAT,
+    "LAST_UPDATE" TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS WATER_LEVEL_MONITORING_UK.MEASUREMENTS (
+    "PK_ID" SERIAL PRIMARY KEY,
     "ID" VARCHAR(255),
-    "STATIONREFERENCE" VARCHAR(255) PRIMARY KEY,
+    "STATIONREFERENCE" VARCHAR(255),
     "DATETIME" TIMESTAMP,
     "VALUE" FLOAT,
-    "UNIT" VARCHAR(255)
+    "UNIT" VARCHAR(255),
+    "LAST_UPDATE" TIMESTAMP
 );
 
-CREATE OR REPLACE VIEW water_level_monitoring_uk.stationsmeasurements
- AS
- SELECT s."RLOIID" AS station_id,
-    s."NOTATION" AS station_notation,
-    s."LABEL" AS station_name,
-    s."RIVERNAME" AS river_name,
-    s."TOWN" AS town,
-    s."LAT" AS latitude,
-    s."LONG" AS longitude,
-    m."DATETIME" AS last_update,
-    m."VALUE",
-    m."UNIT",
-    s."TYPICALRANGELOW" AS typical_range_low,
-    s."TYPICALRANGEHIGH" AS typical_range_high
-   FROM water_level_monitoring_uk.stations s
-     JOIN water_level_monitoring_uk.MEASUREMENTS m ON s."MEASURES_ID" = m."ID";
+CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_MEASUREMENTS AS
+    SELECT DISTINCT ON (m."ID", m."LAST_UPDATE") m."ID",
+        m."LAST_UPDATE",
+        m."STATIONREFERENCE",
+        m."DATETIME",
+        m."VALUE",
+        m."UNIT"
+    FROM WATER_LEVEL_MONITORING_UK.MEASUREMENTS m
+    INNER JOIN (
+        SELECT m."ID", MAX(m."LAST_UPDATE") AS MaxLastUpdate
+        FROM WATER_LEVEL_MONITORING_UK.MEASUREMENTS m
+        GROUP BY m."ID"
+    ) AS latest ON m."ID" = latest."ID" AND m."LAST_UPDATE" = latest.MaxLastUpdate;
+
+CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_STATIONS AS
+    SELECT DISTINCT ON (s."RLOIID") s."PK_ID",
+        s."RLOIID",
+        s."LABEL",
+        s."MEASURES_ID",
+        s."NOTATION",
+        s."RIVERNAME",
+        s."TYPICALRANGEHIGH", 
+        ."TYPICALRANGELOW",
+        s."TOWN",
+        s."LAT",
+        s."LONG",
+        s."LAST_UPDATE"
+    FROM WATER_LEVEL_MONITORING_UK.STATIONS s
+    INNER JOIN (
+        SELECT "RLOIID", MAX("LAST_UPDATE") AS MaxLastUpdate
+        FROM WATER_LEVEL_MONITORING_UK.STATIONS
+        GROUP BY "RLOIID"
+    ) AS latest ON s."RLOIID" = latest."RLOIID" AND s."LAST_UPDATE" = latest.MaxLastUpdate;
+
+CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.stationsmeasurements AS
+    SELECT s."RLOIID" AS station_id,
+        s."NOTATION" AS station_notation,
+        s."LABEL" AS station_name,
+        s."RIVERNAME" AS river_name,
+        s."TOWN" AS town,
+        s."LAT" AS latitude,
+        s."LONG" AS longitude,
+        m."DATETIME" AS last_update,
+        m."VALUE" AS value,
+        m."UNIT" AS unit,
+        s."TYPICALRANGELOW" AS typical_range_low,
+        s."TYPICALRANGEHIGH" AS typical_range_high
+    FROM WATER_LEVEL_MONITORING_UK.LATEST_STATIONS s
+    JOIN WATER_LEVEL_MONITORING_UK.LATEST_MEASUREMENTS m ON s."MEASURES_ID" = m."ID";

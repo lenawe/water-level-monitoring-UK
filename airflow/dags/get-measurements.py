@@ -1,5 +1,5 @@
 import requests
-import time
+from datetime import datetime as dt
 import datetime
 import pendulum
 import json
@@ -14,7 +14,6 @@ API for measurements data
 Filter:
 - parameter = level
 - qualifier = Stage
-- stationReference = notions of measurements next to river Wye (TODO: remove for production)
 
 Returned data:
 - @id (for mapping to stations)
@@ -24,7 +23,7 @@ Returned data:
     - value
 - unit
 """
-API_ENDPOINT_MEASUREMENTS = """https://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage&stationReference=055817_TG_323&stationReference=4023&stationReference=055002_TG_301&stationReference=055807_TG_320&stationReference=2550TH&stationReference=4197&stationReference=2320&stationReference=055811_TG_9303&stationReference=055816_TG_319&stationReference=2590TH&stationReference=4683"""
+API_ENDPOINT_MEASUREMENTS = """https://environment.data.gov.uk/flood-monitoring/id/measures?parameter=level&qualifier=Stage"""
 KAFKA_SETTINGS = {
     "bootstrap_servers": ["kafka:9092"],
     "topic": "measurements",
@@ -56,26 +55,30 @@ def get_json_data(ti):
     Retrieves json data from the specified API endpoint.
     """
     response = requests.get(API_ENDPOINT_MEASUREMENTS)
-    ti.xcom_push(key="measurements", value=response.json())
+    ti.xcom_push(key="measurements", value=json.dumps(response.json()))
 
 def transform_data(data):
     """
     Transforms the measurements data into a desired format.
     """
-    data = json.loads(data.replace("\'", "\""))
+    data = json.loads(data)
     for item in data["items"]:
-        yield (
-            json.dumps(item),
-            json.dumps(
-                {
-                    "id": item.get("@id", None),
-                    "stationreference": item.get("stationReference", None),
-                    "datetime": item["latestReading"].get("dateTime", None),
-                    "value": item["latestReading"].get("value", None),
-                    "unit": item.get("unit", None),
-                }
+        latestReading = item.get("latestReading", None)
+        if latestReading is not None:
+            yield (
+                json.dumps(item),
+                json.dumps(
+                    {
+                        "id": item.get("@id", None),
+                        "stationreference": item.get("stationReference", None),
+                        "datetime": latestReading.get("dateTime", None),
+                        "value": latestReading.get("value", None),
+                        "unit": item.get("unit", None),
+                        "last_update": dt.now()
+                    },
+                    default=str
+                )
             )
-        )
 
 def produce_to_topic(ti):
     return ti.xcom_pull(key="transformed_measurements", task_ids="transform_data")
