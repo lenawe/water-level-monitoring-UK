@@ -56,6 +56,7 @@ def get_expanded_cassandra_df(topic):
     .select(from_json(col("value"),get_schema(topic)).alias(topic)) \
     .select("{topic}.*".format(topic=topic))
   uuid_udf = udf(lambda: str(uuid.uuid4()), StringType()).asNondeterministic()
+  return expanded_df.withColumn("uuid", uuid_udf())
   
 def save_to_cassandra(writeDF, topic, epoch_id):
   writeDF.write \
@@ -71,3 +72,17 @@ def save_measurements(writeDf, epoch_id):
 def save_stations(writeDf, epoch_id):
   save_to_cassandra(writeDf, "stations", epoch_id)
 
+measurements_query = get_expanded_cassandra_df("measurements").writeStream \
+  .trigger(processingTime="15 seconds") \
+  .foreachBatch(save_measurements) \
+  .outputMode("update") \
+  .start()
+
+stations_query = get_expanded_cassandra_df("stations").writeStream \
+  .trigger(processingTime="15 seconds") \
+  .foreachBatch(save_stations) \
+  .outputMode("update") \
+  .start()
+
+stations_query.awaitTermination()
+measurements_query.awaitTermination()
