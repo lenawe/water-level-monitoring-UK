@@ -106,7 +106,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: WATER_LEVEL_MONITORING_DB
     volumes:
-      - "./docker/postgresql/postgresql_data:/var/lib/postgresql/data:rw"
+      - "./postgresql/postgresql_data:/var/lib/postgresql/data:rw"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d WATER_LEVEL_MONITORING_DB -h postgresql -p 5432"]
       interval: 10s
@@ -277,18 +277,6 @@ services:
         target: /airflow-init.sh
       - ${AIRFLOW_PROJ_DIR:-.}:/airflow/sources
 
-  airflow-cli:
-    <<: *airflow-common
-    profiles:
-      - debug
-    environment:
-      <<: *airflow-common-env
-      CONNECTION_CHECK_MAX_COUNT: "0"
-    command:
-      - bash
-      - -c
-      - airflow
-
   flower:
     <<: *airflow-common
     command: celery flower
@@ -323,7 +311,6 @@ services:
   #   depends_on:
   #     - kafka
 
-
   # pgadmin:
   #   image: dpage/pgadmin4
   #   environment:
@@ -353,6 +340,18 @@ services:
   #       condition: service_completed_successfully
   #     kafka:
   #       condition: service_started
+  
+  # airflow-cli:
+  #   <<: *airflow-common
+  #   profiles:
+  #     - debug
+  #   environment:
+  #     <<: *airflow-common-env
+  #     CONNECTION_CHECK_MAX_COUNT: "0"
+  #   command:
+  #     - bash
+  #     - -c
+  #     - airflow
 
 volumes:
   kafka_data:
