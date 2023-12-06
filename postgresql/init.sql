@@ -25,8 +25,15 @@ CREATE TABLE IF NOT EXISTS WATER_LEVEL_MONITORING_UK.MEASUREMENTS (
     "LAST_UPDATE" TIMESTAMP
 );
 
-CREATE OR REPLACE VIEW water_level_monitoring_uk.stationsmeasurements
- AS
+CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_MEASUREMENTS AS
+    SELECT DISTINCT ON (m."ID", m."LAST_UPDATE") m."ID", m."LAST_UPDATE", m."STATIONREFERENCE", m."DATETIME", m."VALUE", m."UNIT"
+        FROM WATER_LEVEL_MONITORING_UK.MEASUREMENTS m
+        INNER JOIN (
+            SELECT m."ID", MAX(m."LAST_UPDATE") AS MaxLastUpdate
+            FROM WATER_LEVEL_MONITORING_UK.MEASUREMENTS m
+            GROUP BY m."ID"
+        ) AS latest ON m."ID" = latest."ID" AND m."LAST_UPDATE" = latest.MaxLastUpdate;
+
  SELECT s."RLOIID" AS station_id,
     s."NOTATION" AS station_notation,
     s."LABEL" AS station_name,
