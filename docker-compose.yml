@@ -96,16 +96,16 @@ services:
       kafka:
         condition: service_started
     
-  kafka-ui:
-    image: provectuslabs/kafka-ui:v0.6.2
-    ports:
-      - 8080:8080
-    environment:
-      KAFKA_CLUSTERS_0_NAME: monitoring-cluster
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      DYNAMIC_CONFIG_ENABLED: 'true'
-    depends_on:
-      - kafka
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui:v0.6.2
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: monitoring-cluster
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+  #     DYNAMIC_CONFIG_ENABLED: 'true'
+  #   depends_on:
+  #     - kafka
 
   postgresql:
     build: ./postgresql
