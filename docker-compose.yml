@@ -187,7 +187,14 @@ services:
         target: /spark-setup.sh
       - ./spark-consumer-postgresql/scripts:/home/scripts
       
-  # streamlit:
+  streamlit:
+    build: ./streamlit
+    depends_on:
+      postgresql:
+        condition: service_started
+    ports:
+    - "8501:8501"
+    
   # tensorflow:
 
   ###############################
