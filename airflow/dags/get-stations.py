@@ -62,13 +62,13 @@ def get_json_data(ti):
     Retrieves json data from the specified API endpoint.
     """
     response = requests.get(API_ENDPOINT_STATIONS)
-    ti.xcom_push(key="stations", value=response.json())
+    ti.xcom_push(key="stations", value=json.dumps(response.json()))
 
 def transform_data(data):
     """
     Transforms the station data into a desired format.
     """
-    data = json.loads(data.replace("\'", "\""))
+    data = json.loads(data)
     for item in data['items']:
 
         stageScale = item.get("stageScale", None)

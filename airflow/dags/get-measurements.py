@@ -56,13 +56,13 @@ def get_json_data(ti):
     Retrieves json data from the specified API endpoint.
     """
     response = requests.get(API_ENDPOINT_MEASUREMENTS)
-    ti.xcom_push(key="measurements", value=response.json())
+    ti.xcom_push(key="measurements", value=json.dumps(response.json()))
 
 def transform_data(data):
     """
     Transforms the measurements data into a desired format.
     """
-    data = json.loads(data.replace("\'", "\""))
+    data = json.loads(data)
     for item in data["items"]:
         yield (
             json.dumps(item),
