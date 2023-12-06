@@ -72,3 +72,5 @@ r = pdk.Deck(
 st.title('Water level monitoring in the UK')
 
 st.pydeck_chart(r)
+
+st.dataframe(data=df)
