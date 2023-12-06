@@ -3,3 +3,4 @@ airflow/dags/__pycache__/
 docker/pgadmin/pgadmin_data/sessions/
 docker/postgresql/postgresql_data/
 docker/pgadmin/pgadmin_data/pgadmin4.db
+spark/scripts/__pycache__/copy.cpython-38.pyc

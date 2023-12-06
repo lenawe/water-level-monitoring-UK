@@ -137,7 +137,56 @@ services:
       - 8082:80
 
   # python-producer:
-  # spark:
+  spark-master:
+    image: docker.io/bitnami/spark:3.3.0
+    container_name: spark_master
+    hostname: spark_master
+    user: root
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    ports:
+      - '8083:8083'
+
+  spark-consumer-cassandra:
+    image: docker.io/bitnami/spark:3.3.0
+    command: [ "/bin/bash", "-c", "/spark-setup.sh"]
+    depends_on:
+      spark-master:
+        condition: service_started
+      kafka-create-topic-stations:
+        condition: service_completed_successfully
+      kafka-create-topic-measurements:
+        condition: service_completed_successfully
+      cassandra-init:
+        condition: service_completed_successfully
+    volumes:
+      - type: bind
+        source: ./spark-consumer-cassandra/spark-setup.sh
+        target: /spark-setup.sh
+      - ./spark-consumer-cassandra/scripts:/home/scripts
+
+  spark-consumer-postgresql:
+    image: docker.io/bitnami/spark:3.3.0
+    command: [ "/bin/bash", "-c", "/spark-setup.sh"]
+    depends_on:
+      spark-master:
+        condition: service_started
+      kafka-create-topic-stations:
+        condition: service_completed_successfully
+      kafka-create-topic-measurements:
+        condition: service_completed_successfully
+      postgresql:
+        condition: service_started
+    volumes:
+      - type: bind
+        source: ./spark-consumer-postgresql/spark-setup.sh
+        target: /spark-setup.sh
+      - ./spark-consumer-postgresql/scripts:/home/scripts
+      
   # streamlit:
   # tensorflow:
 
