@@ -1,5 +1,5 @@
 import requests
-import time
+from datetime import datetime as dt
 import datetime
 import pendulum
 import json
@@ -64,18 +64,22 @@ def transform_data(data):
     """
     data = json.loads(data)
     for item in data["items"]:
-        yield (
-            json.dumps(item),
-            json.dumps(
-                {
-                    "id": item.get("@id", None),
-                    "stationreference": item.get("stationReference", None),
-                    "datetime": item["latestReading"].get("dateTime", None),
-                    "value": item["latestReading"].get("value", None),
-                    "unit": item.get("unit", None),
-                }
+        latestReading = item.get("latestReading", None)
+        if latestReading is not None:
+            yield (
+                json.dumps(item),
+                json.dumps(
+                    {
+                        "id": item.get("@id", None),
+                        "stationreference": item.get("stationReference", None),
+                        "datetime": latestReading.get("dateTime", None),
+                        "value": latestReading.get("value", None),
+                        "unit": item.get("unit", None),
+                        "last_update": dt.now()
+                    },
+                    default=str
+                )
             )
-        )
 
 def produce_to_topic(ti):
     return ti.xcom_pull(key="transformed_measurements", task_ids="transform_data")
