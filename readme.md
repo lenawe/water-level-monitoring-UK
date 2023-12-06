@@ -33,7 +33,9 @@ To run this project, you need to have Docker installed on your machine. If you d
    docker compose up -d
    ```
 
-3. In Docker Desktop, you can monitor the status of the container. Once the necessary containers are running, you can access the front-end app at [http://localhost:8501](http://localhost:8501). The provision of the data is scheduled. Please be aware that information about the stations will load once a week, and information about the measurements every 15 minutes. If there is a requirement to change this or run the pipelines manually, this can be done in Airflow.
+3. In Docker Desktop, you can monitor the status of the container. Once the necessary containers are running, you can access the front-end app at [http://localhost:8501](http://localhost:8501). </br>
+<img src="/images/app-1.png" alt="Expand options" height="350"/><img src="/images/app-2.png" alt="Expand options" height="350"/></br>
+The provision of the data is scheduled. Please be aware that information about the stations will load once a week, and information about the measurements every 15 minutes. If there is a requirement to change this or run the pipelines manually, this can be done in Airflow.
 
 ## Monitoring
 As part of this project, the Docker containers were operated locally. To save local resources, the graphical user intefaces are therefore deactivated as default. If these are required, the corresponding parts in [docker-compose.yml](https://github.com/lenawe/water-level-monitoring-UK/blob/main/docker-compose.yml) can be activated by commenting them out and running them. If done, they can be accessed at the following adresses:
