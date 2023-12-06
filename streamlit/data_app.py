@@ -49,10 +49,24 @@ view_state = pdk.ViewState(
     pitch=0
 )
 
+tooltip = {
+    "html": "<b>Station:</b> {station_name} (id: {station_notation})<br>"
+            "<b>River:</b> {river_name}<br>"
+            "<b>Town:</b> {town}<br>"
+            "<b>Updated:</b> {last_update}<br>"
+            "<b>Measurement:</b> {value} {unit}<br>"
+            "<b>Typical range:</b> {typical_range_low} {unit} - {typical_range_high} {unit}",
+    "style": {
+        "backgroundColor": "grey",
+        "color": "white"
+    }
+}
+
 r = pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     layers=[layer],
-    initial_view_state=view_state
+    initial_view_state=view_state,
+    tooltip=tooltip
 )
 
 st.pydeck_chart(r)
