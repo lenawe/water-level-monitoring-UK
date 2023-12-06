@@ -1,5 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField,FloatType,StringType
+from pyspark.sql.functions import from_json, col
+
 spark = SparkSession \
     .builder \
     .appName("Streaming pipeline to PostgreSQL") \
@@ -42,3 +44,9 @@ def get_schema(topic):
       ])
     else:
         return None
+
+def get_expanded_df(topic):
+  return get_input_df(topic) \
+      .selectExpr("CAST(value AS STRING)") \
+      .select(from_json(col("value"),get_schema(topic)).alias(topic)) \
+      .select("{topic}.*".format(topic=topic))
