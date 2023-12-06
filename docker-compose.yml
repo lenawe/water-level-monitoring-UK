@@ -136,7 +136,6 @@ services:
     ports:
       - 8082:80
 
-  # python-producer:
   spark-master:
     image: docker.io/bitnami/spark:3.3.0
     container_name: spark_master
