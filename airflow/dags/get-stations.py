@@ -86,13 +86,13 @@ def transform_data(data):
             json.dumps(item),
             json.dumps(
                 {
-                    "RLOIid": item.get("RLOIid", None),
+                    "rloiid": item.get("RLOIid", None),
                     "label": item.get("label", None),
                     "measures_id": measure_id,
                     "notation": item.get("notation", None),
-                    "riverName": item.get("riverName", None),
-                    "typicalRangeHigh": typicalRangeHigh,
-                    "typicalRangeLow": typicalRangeLow,
+                    "rivername": item.get("riverName", None),
+                    "typicalrangehigh": typicalRangeHigh,
+                    "typicalrangelow": typicalRangeLow,
                     "town": item.get("town", None),
                     "lat": item.get("lat", None),
                     "long": item.get("long", None),

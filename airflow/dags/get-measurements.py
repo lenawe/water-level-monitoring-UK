@@ -69,8 +69,8 @@ def transform_data(data):
             json.dumps(
                 {
                     "id": item.get("@id", None),
-                    "stationReference": item.get("stationReference", None),
-                    "datetime": item["latestReading"].get("datetime", None),
+                    "stationreference": item.get("stationReference", None),
+                    "datetime": item["latestReading"].get("dateTime", None),
                     "value": item["latestReading"].get("value", None),
                     "unit": item.get("unit", None),
                 }
