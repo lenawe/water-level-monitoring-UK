@@ -74,3 +74,17 @@ def save_to_postgres_stations(writeDF, epoch_id):
 def save_to_postgres_measurements(writeDF, epoch_id):
   save_to_postgres(writeDF, epoch_id, "measurements")
 
+postgres_query_stations = get_expanded_df("stations").writeStream \
+  .trigger(processingTime="15 seconds") \
+  .foreachBatch(save_to_postgres_stations) \
+  .outputMode("update") \
+  .start()
+
+postgres_query_measurements = get_expanded_df("measurements").writeStream \
+  .trigger(processingTime="15 seconds") \
+  .foreachBatch(save_to_postgres_measurements) \
+  .outputMode("update") \
+  .start()
+
+postgres_query_stations.awaitTermination()
+postgres_query_measurements.awaitTermination()
