@@ -56,4 +56,18 @@ def get_expanded_cassandra_df(topic):
     .select(from_json(col("value"),get_schema(topic)).alias(topic)) \
     .select("{topic}.*".format(topic=topic))
   uuid_udf = udf(lambda: str(uuid.uuid4()), StringType()).asNondeterministic()
-  return expanded_df.withColumn("uuid", uuid_udf())
+  
+def save_to_cassandra(writeDF, topic, epoch_id):
+  writeDF.write \
+    .format("org.apache.spark.sql.cassandra")\
+    .mode('append')\
+    .options(table=topic, keyspace="water_level_monitoring_uk")\
+    .save()
+  print(epoch_id, ": Saved messages from topic {topic} to Cassandra".format(topic=topic))
+
+def save_measurements(writeDf, epoch_id):
+  save_to_cassandra(writeDf, "measurements", epoch_id)
+
+def save_stations(writeDf, epoch_id):
+  save_to_cassandra(writeDf, "stations", epoch_id)
+
