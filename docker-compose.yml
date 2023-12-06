@@ -95,17 +95,6 @@ services:
     depends_on:
       kafka:
         condition: service_started
-    
-  # kafka-ui:
-  #   image: provectuslabs/kafka-ui:v0.6.2
-  #   ports:
-  #     - 8080:8080
-  #   environment:
-  #     KAFKA_CLUSTERS_0_NAME: monitoring-cluster
-  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-  #     DYNAMIC_CONFIG_ENABLED: 'true'
-  #   depends_on:
-  #     - kafka
 
   postgresql:
     build: ./postgresql
@@ -124,17 +113,6 @@ services:
       timeout: 5s
       retries: 10
       start_period: 5s
-
-  # pgadmin:
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-  #     - PGADMIN_DEFAULT_PASSWORD=pgadmin
-  #   volumes:
-  #     - "./pgadmin/pgadmin_data:/var/lib/pgadmin:rw"
-  #     - "./pgadmin/pgadmin_data:/pgadmin4/servers.json"
-  #   ports:
-  #     - 8082:80
 
   spark-master:
     image: docker.io/bitnami/spark:3.3.0
@@ -223,25 +201,6 @@ services:
       retries: 50
       start_period: 30s
     restart: always
-
-  # airflow-webserver:
-  #   <<: *airflow-common
-  #   command: webserver
-  #   ports:
-  #     - 8081:8081
-  #   healthcheck:
-  #     test: ["CMD", "curl", "--fail", "http://localhost:8081/health"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #     start_period: 30s
-  #   restart: always
-  #   depends_on:
-  #     <<: *airflow-common-depends-on
-  #     airflow-init:
-  #       condition: service_completed_successfully
-  #     kafka:
-  #       condition: service_started
 
   airflow-scheduler:
     <<: *airflow-common
@@ -348,6 +307,52 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
+
+  ###############################################
+  ######### OPTIONAL FRONT-END SERVICES #########
+  ###############################################
+
+  # kafka-ui:
+  #   image: provectuslabs/kafka-ui:v0.6.2
+  #   ports:
+  #     - 8080:8080
+  #   environment:
+  #     KAFKA_CLUSTERS_0_NAME: monitoring-cluster
+  #     KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+  #     DYNAMIC_CONFIG_ENABLED: 'true'
+  #   depends_on:
+  #     - kafka
+
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+  #     - PGADMIN_DEFAULT_PASSWORD=pgadmin
+  #   volumes:
+  #     - "./pgadmin/pgadmin_data:/var/lib/pgadmin:rw"
+  #     - "./pgadmin/pgadmin_data:/pgadmin4/servers.json"
+  #   ports:
+  #     - 8082:80
+
+  # airflow-webserver:
+  #   <<: *airflow-common
+  #   command: webserver
+  #   ports:
+  #     - 8081:8081
+  #   healthcheck:
+  #     test: ["CMD", "curl", "--fail", "http://localhost:8081/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 5
+  #     start_period: 30s
+  #   restart: always
+  #   depends_on:
+  #     <<: *airflow-common-depends-on
+  #     airflow-init:
+  #       condition: service_completed_successfully
+  #     kafka:
+  #       condition: service_started
 
 volumes:
   kafka_data:
