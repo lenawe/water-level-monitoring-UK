@@ -59,11 +59,10 @@ def save_to_postgres(writeDF, epoch_id, topic):
   }  
 
   writeDF.write \
-    .option("truncate", True) \
     .jdbc(
       url="jdbc:postgresql://postgresql:5432/WATER_LEVEL_MONITORING_DB",
       table="WATER_LEVEL_MONITORING_UK.{topic}".format(topic=topic),
-      mode="overwrite",
+      mode="append",
       properties=db_credentials
     )
   
