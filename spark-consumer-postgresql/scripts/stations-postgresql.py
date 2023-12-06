@@ -7,3 +7,12 @@ spark = SparkSession \
     .getOrCreate()
 
 spark.sparkContext.setLogLevel("ERROR")
+
+def get_input_df(topic):
+  return spark \
+    .readStream \
+    .format("kafka") \
+    .option("kafka.bootstrap.servers", "kafka:9092") \
+    .option("subscribe", topic) \
+    .option("startingOffsets", "earliest") \
+    .load()
