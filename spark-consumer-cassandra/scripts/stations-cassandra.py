@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql.types import StructType,StructField,FloatType,StringType
 spark = SparkSession \
     .builder \
     .appName("Streaming pipeline to cassandra") \
@@ -20,3 +21,28 @@ def get_input_df(topic):
     .option("subscribe", topic) \
     .option("startingOffsets", "earliest") \
     .load()
+
+def get_schema(topic):
+    if topic == "stations":
+      return StructType([
+        StructField("rloiid", StringType()),
+        StructField("label", StringType()),
+        StructField("measures_id", StringType()),
+        StructField("notation", StringType()),
+        StructField("rivername", StringType()),
+        StructField("typicalrangehigh", FloatType()),
+        StructField("typicalrangelow", FloatType()),
+        StructField("town", StringType()),
+        StructField("lat", FloatType()),
+        StructField("long", FloatType()),
+      ])
+    elif topic == "measurements":
+      return StructType([
+        StructField("id", StringType()),
+        StructField("stationreference", StringType()),
+        StructField("datetime", StringType()),
+        StructField("value", FloatType()),
+        StructField("unit", StringType()),
+      ])
+    else:
+        return None
