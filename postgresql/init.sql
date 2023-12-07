@@ -47,7 +47,7 @@ CREATE OR REPLACE VIEW WATER_LEVEL_MONITORING_UK.LATEST_STATIONS AS
         s."NOTATION",
         s."RIVERNAME",
         s."TYPICALRANGEHIGH", 
-        ."TYPICALRANGELOW",
+        s."TYPICALRANGELOW",
         s."TOWN",
         s."LAT",
         s."LONG",

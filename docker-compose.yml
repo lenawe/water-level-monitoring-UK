@@ -105,8 +105,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: WATER_LEVEL_MONITORING_DB
-    volumes:
-      - "./postgresql/postgresql_data:/var/lib/postgresql/data:rw"
+    # volumes:
+    #   - "./postgresql1/postgresql_data:/var/lib/postgresql/data:rw"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d WATER_LEVEL_MONITORING_DB -h postgresql -p 5432"]
       interval: 10s
@@ -357,4 +357,4 @@ volumes:
   kafka_data:
     driver: local
   postgres-db-volume:
-  postgresql-db-volume:
+  # postgresql-db-volume:
