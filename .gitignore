@@ -1,4 +1,5 @@
-airflow/logs/
+airflow/logs/*
+!airflow/logs/.gitkeep
 airflow/dags/__pycache__/
 pgadmin/pgadmin_data/sessions/
 postgresql/postgresql_data/
